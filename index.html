@@ -1,0 +1,158 @@
+<!-- Description: HTML+JS code for website map to display and locate custom pins (bins) with TomTom Maps Api(images removed, see comments)
+     Author: Nicholas Ishankov
+     Date: 31/07/2020 -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TomTom Map</title>
+    <link href='https://api.tomtom.com/maps-sdk-for-web/cdn/5.x/5.40.1/maps/maps.css' rel='stylesheet' type='text/css'>
+    <script src='https://api.tomtom.com/maps-sdk-for-web/cdn/5.x/5.40.1/maps/maps-web.min.js'></script>
+    <link href='https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' rel='stylesheet'>
+    <script src='bins.js' type='text/javascript'></script>
+    <link href='style.css' rel='stylesheet' type='text/css'/>
+    <script src='https://code.jquery.com/jquery-1.12.4.js'></script>
+    <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>
+</head>
+<body>
+        <div class='control-panel'>
+            <div class='heading'>
+                <!-- <img src='icons/logo.png'> -->
+            </div>
+            <div id='bin-list'></div>
+        </div>
+        <div class='map' id='map'></div>
+
+<script>
+    // const apiKey = api key here!;
+    const map = tt.map({
+        key: apiKey,
+        container: 'map',
+        center: [-79.447015, 43.751070],
+        style: 'tomtom://vector/1/basic-main',
+        zoom: 9
+    });
+
+    // enable geolocation
+    map.addControl(new tt.GeolocateControl({
+        positionOptions: {
+            enableHighAccuracy: true,
+        },
+        trackUserLocation: true,
+        showUserLocation: true
+    }));
+
+    // create markers
+    const markersCity = [];
+    const list = document.getElementById('bin-list');
+
+    bins.features.forEach(function (bin, index) {
+        const city = bin.properties.city;
+        const address = bin.properties.address;
+        const location = bin.geometry.coordinates;
+        var element = document.createElement('div');
+        element.id = bin.properties.elem;
+        const marker = new tt.Marker({element: element}).setLngLat(location).setPopup(new tt.Popup({offset: 35}).setHTML(address)).addTo(map);
+        markersCity[index] = {marker, city};
+
+        let cityBinsList = document.getElementById(city);
+        if (cityBinsList === null) {
+            const cityBinsListHeading = list.appendChild(document.createElement('h3'));
+            cityBinsListHeading.innerHTML = city;
+            cityBinsList = list.appendChild(document.createElement('div'));
+            cityBinsList.id = city;
+            cityBinsList.className = 'list-entries-container';
+            cityBinsListHeading.addEventListener('click', function (e) {
+                map.fitBounds(getMarkersBoundsForCity(e.target.innerText), {padding: 50});
+            });
+        }
+        const details = buildLocation(cityBinsList, address);
+
+        // on click and menu controls
+        marker.getElement().addEventListener('click',
+            (function (city) {
+                const activeItem = document.getElementsByClassName('selected');
+                return function () {
+                    if (activeItem[0]) {
+                        activeItem[0].classList.remove('selected');
+                    }
+                    details.classList.add('selected');
+                    openCityTab(city);
+                }
+            })(city)
+        );
+
+        details.addEventListener('click',
+            (function (marker) {
+                const activeItem = document.getElementsByClassName('selected');
+                return function () {
+                    if (activeItem[0]) {
+                        activeItem[0].classList.remove('selected');
+                    }
+                    details.classList.add('selected');
+                    map.easeTo({
+                        center: marker.getLngLat(),
+                        zoom: 18
+                    });
+                    closeAllPopups();
+                    marker.togglePopup();
+                }
+            })(marker)
+        );
+
+        function buildLocation(htmlParent, text) {
+        const details = htmlParent.appendChild(document.createElement('a'));
+        details.href = '#';
+        details.className = 'list-entry';
+        details.innerHTML = text;
+        return details;
+        }
+
+        function closeAllPopups() {
+            markersCity.forEach(markerCity => {
+                if (markerCity.marker.getPopup().isOpen()) {
+                    markerCity.marker.togglePopup();
+                }
+            });
+        }
+
+
+        function getMarkersBoundsForCity(city) {
+            const bounds = new tt.LngLatBounds();
+            markersCity.forEach(markerCity => {
+                if (markerCity.city === city) {
+                    bounds.extend(markerCity.marker.getLngLat());
+                }
+            });
+            return bounds;
+        }
+
+        function openCityTab(selected_id) {
+            const storeListElement = $('#store-list');
+            const index = storeListElement.find('div.list-entries-container');
+            for (let j = 0; j < index.length; j++) {
+                if (index[j].id === selected_id) {
+                    storeListElement.accordion('option', {
+                        'active': j
+                    });
+                }
+            }
+        }
+
+    });
+
+    $(function () {
+        $('#bin-list').accordion({
+            'icons': {
+                'header': 'ui-icon-plus',
+                'activeHeader': 'ui-icon-minus'
+            },
+            'heightStyle': 'content',
+            'collapsible': true,
+            'active': false
+        });
+    });
+
+</script>
+</body>
+</html>
