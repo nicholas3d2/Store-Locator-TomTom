@@ -33,7 +33,7 @@ a {
             box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.3);
     height: 624px;
     left: 0;
-    overflow: scroll;
+    overflow: hidden;
     position: absolute;
     top: 0;
     width: 206px;
@@ -106,24 +106,24 @@ a {
     margin-right: 15px;
 }
 
-/* for different types of icons (bins) */
+/* for different types of icons (bins) used in js file! */
 #LHR{
-    /* background-image: url('icons/iconLHR_small.png'); */
+    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Red_star.svg/945px-Red_star.svg.png);
     background-size: cover;
     width: 30px;
-    height: 40px;
+    height: 30px;
 }
 
 #BBC{
-    /* background-image: url('icons/icon_small.png'); */
+    background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Blue_Star.svg/360px-Blue_Star.svg.png); 
     background-size: cover;
     width: 30px;
-    height: 40px;
+    height: 30px;
 }
 
 #MKM{
-    /* background-image: url('icons/iconMKM_small.png'); */
+    background-image: url(https://upload.wikimedia.org/wikipedia/commons/4/44/Plain_Yellow_Star.png); 
     background-size: cover;
     width: 30px;
-    height: 40px;
+    height: 30px;
 }
